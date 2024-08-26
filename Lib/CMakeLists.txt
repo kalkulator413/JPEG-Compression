@@ -1,4 +1,6 @@
-add_library(Lib src/Calc.cpp)
+add_library(Lib 
+    src/Image.cpp
+)
 
 message("Lib current source dir = ${CMAKE_CURRENT_SOURCE_DIR}")
 

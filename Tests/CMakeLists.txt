@@ -1,7 +1,7 @@
 include(AddCatch2)
 
 set(SOURCE_FILES	
-	Tests.cpp
+	MatrixTests.cpp
 )
 
 set(LIBRARY_NAME Lib)
