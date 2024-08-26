@@ -5,3 +5,8 @@ public:
 private:
 
 };
+
+class GrayscaleImage : Image
+{
+
+};

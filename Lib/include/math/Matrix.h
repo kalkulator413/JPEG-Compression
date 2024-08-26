@@ -21,7 +21,10 @@ private:
 template<typename T, size_t Alignment>
 inline Matrix<T, Alignment>::Matrix(size_t R, size_t C) : nRows(R), nCols(C)
 {
-    data = static_cast<T*>(std::aligned_alloc(Alignment, nRows * nCols * 8 * sizeof(T)));
+    if constexpr (Alignment == 0)
+        data = static_cast<T*>(std::malloc(nRows * nCols * 8 * sizeof(T)));
+    else
+        data = static_cast<T*>(std::aligned_alloc(Alignment, nRows * nCols * 8 * sizeof(T)));
 }
 
 template<typename T, size_t Alignment>

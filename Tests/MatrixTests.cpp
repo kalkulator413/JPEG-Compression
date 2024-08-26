@@ -24,6 +24,16 @@ void checkOnes(size_t nRows, size_t nCols)
             CHECK(m1(i, j) == T(1));
         }
     }
+
+    Matrix<T, 0> m2(nRows, nCols);
+    m2.setOnes();
+    for (size_t i = 0; i < nRows; ++i)
+    {
+        for (size_t j = 0; j < nCols; ++j)
+        {
+            CHECK(m2(i, j) == T(1));
+        }
+    }
 }
 
 TEST_CASE( "SetOnes", "[matrix]" )
@@ -64,6 +74,16 @@ void checkZeros(size_t nRows, size_t nCols)
         for (size_t j = 0; j < nCols; ++j)
         {
             CHECK(m1(i, j) == T(0));
+        }
+    }
+
+    Matrix<T, 0> m2(nRows, nCols);
+    m2.setZeros();
+    for (size_t i = 0; i < nRows; ++i)
+    {
+        for (size_t j = 0; j < nCols; ++j)
+        {
+            CHECK(m2(i, j) == T(0));
         }
     }
 }
