@@ -1,12 +1,15 @@
 #!/bin/sh
 
-mkdir Release
-cd Release
-cmake -DCMAKE_BUILD_TYPE=Release ..
+mkdir build
+cd build
+
+mkdir debug
+cd debug
+cmake -DCMAKE_BUILD_TYPE=Debug ../..
 make
 
 cd ..
-mkdir Debug
-cd Debug
-cmake -DCMAKE_BUILD_TYPE=Debug ..
+mkdir release
+cd release
+cmake -DCMAKE_BUILD_TYPE=Release ../..
 make
