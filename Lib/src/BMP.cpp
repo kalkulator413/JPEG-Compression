@@ -1,8 +1,8 @@
-#include <cstdint>
 #include <fstream>
-#include <image/BMP.h>
 #include <iostream>
 #include <array>
+#include <cassert>
+#include <image/BMP.h>
 
 // Partially taken from stackoverflow user https://stackoverflow.com/users/5133242/liam and modified
 BMPImg::BMPImg(const char * filename)
@@ -62,7 +62,7 @@ BMPImg::BMPImg(const char * filename)
     inf.seekg(m_pixelArrayOffset,ios::beg);
     for(size_t i=0;i<m_pixelArraySize;i++) {
         inf >> hex >> a;
-        m_pixelData[i] = a; 
+        m_pixelData[i] = a;
     }
 
     // output is in rgb order.
@@ -80,34 +80,36 @@ BMPImg::BMPImg(const char * filename)
         return v;
     };
 
-    redData = new uint8_t[m_width * m_height];
-    blueData = new uint8_t[m_width * m_height];
-    greenData = new uint8_t[m_width * m_height];
+    Yp = new Matrix<float>(m_height, m_width);
+    Cb = new Matrix<float>(m_height, m_width);
+    Cr = new Matrix<float>(m_height, m_width);
 
+    // todo: use SIMD for this
     for (size_t r = 0; r < m_height; ++r)
     {
         for (size_t c = 0; c < m_width; ++c)
         {
             auto [rd, gr, bl] = getPixel(c, r);
-            redData[r * m_width + c] = rd;
-            greenData[r * m_width + c] = gr;
-            blueData[r * m_width + c] = bl;
+
+            (*Yp)(r, c) = 0.299f * rd + 0.587f * gr + 0.114f * bl;
+            (*Cb)(r, c) = 128.f - 0.168736f * rd - 0.331264f * gr + 0.5f * bl;
+            (*Cr)(r, c) = 128.f + 0.5f * rd - 0.418688f * gr - 0.081312f * bl;
         }
     }
 
     delete[] m_pixelData;
 }
 
-void BMPImg::display()
-{
-    for (int r = m_height - 1; r >= 0; --r)
-    {
-        for (size_t c = 0; c < m_width; ++c)
-        {
-            std::cout << "(" << int(redData[r * m_width + c]) << ", "
-                << int(greenData[r * m_width + c]) << ", "
-                << int(blueData[r * m_width + c]) << "), ";
-        }
-        std::cout << std::endl;
-    }
-}
+// void BMPImg::display()
+// {
+//     for (int r = m_height - 1; r >= 0; --r)
+//     {
+//         for (size_t c = 0; c < m_width; ++c)
+//         {
+//             std::cout << "(" << int(redData[r * m_width + c]) << ", "
+//                 << int(greenData[r * m_width + c]) << ", "
+//                 << int(blueData[r * m_width + c]) << "), ";
+//         }
+//         std::cout << std::endl;
+//     }
+// }

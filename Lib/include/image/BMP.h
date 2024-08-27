@@ -1,6 +1,5 @@
-#include <cassert>
 #include <cmath>
-#include <cstdint>
+#include <math/Matrix.h>
 
 // Partially taken from stackoverflow user https://stackoverflow.com/users/5133242/liam and modified
 class BMPImg {
@@ -12,18 +11,20 @@ public:
     BMPImg(const char * filename);
     ~BMPImg();
 
-    uint8_t* redData;
-    uint8_t* greenData;
-    uint8_t* blueData;
+    // these can technically all be stored in uint8_t*'s
+    // but we eventually apply DCT which requires floats
+    // and this format makes it nicer to avoid casts
+    Matrix<float>* Yp;
+    Matrix<float>* Cb;
+    Matrix<float>* Cr;
 
     size_t width() {return m_width;}
     size_t height() {return m_height;}
-
-    void display();
 };
 
-inline BMPImg::~BMPImg() {
-    delete[] redData;
-    delete[] greenData;
-    delete[] blueData;
+inline BMPImg::~BMPImg()
+{
+    delete Yp;
+    delete Cb;
+    delete Cr;
 }
