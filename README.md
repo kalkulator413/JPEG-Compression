@@ -18,6 +18,6 @@ Roadmap:
 - [ ] Investigate if decompression is necessary
 
 Dependencies:
-- `catch2` - for building tests
+- `catch2` - for building tests and benchmarks
 
 All data in Data/Raw is obtained courtesy of [FileSampleHub](https://filesampleshub.com/format/image/bmp) and [University of Southern Carolina](https://people.math.sc.edu/Burkardt/data/bmp/bmp.html)
