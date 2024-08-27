@@ -14,7 +14,7 @@ Roadmap:
   - [ ] Benchmark against SIMD implementation
 - [ ] RLE on quantized values (running zig-zag)
 - [ ] Huffman coding
-- [ ] Format as JPEG
+- [ ] Format as JPEG & save
 - [ ] Investigate if decompression is necessary
 
 Dependencies:
