@@ -7,6 +7,7 @@ Roadmap:
 - [x] Read `.bmp` files into memory
 - [x] Change to YCbCr format
   - [ ] Benchmark against SIMD implementation
+- [ ] Investigate downscaling
 - [ ] Create 8x8 Chunks
 - [ ] Apply DCT on each chunk
   - [ ] Try threading on each chunk
