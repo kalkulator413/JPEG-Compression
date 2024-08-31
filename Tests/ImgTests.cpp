@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/benchmark/catch_benchmark.hpp>
 #include "image/BlockedImage.h"
+#include <iostream>
 
 static void doBlockingTest(const char* filename)
 {
@@ -22,6 +23,20 @@ static void doBlockingTest(const char* filename)
             }
         }
     }
+
+    // b.applyDCT();
+    // for (size_t r = 0; r < 8; ++r)
+    // {
+    //     for (size_t c = 0; c < 8; ++c)
+    //     {
+    //         std::cout << "(" << round(100* b.Y[0][r * 8 + c]) / 100.f << ", "
+    //             << round(100* b.Cr[0][r * 8 + c]) / 100.f << ", "
+    //             << round(100* b.Cb[0][r * 8 + c]) / 100.f << "), ";
+    //     }
+    //     std::cout << std::endl;
+    // }
+    // std::cout << "----------" << std::endl;
+    // std::cout << std::endl;
 }
 
 TEST_CASE("BlockSetup", "[img]")
@@ -36,12 +51,19 @@ TEST_CASE("Reading Images", "[img][!benchmark]")
 {
     BENCHMARK("BMP24")
     {
-        return BMPImg("./Data/Raw/bmp_24.bmp");
+        return BMPImg("./Data/Raw/sample2.bmp");
     };
 
-    BMPImg bmp24("./Data/Raw/bmp_24.bmp");
+    BMPImg bmp24("./Data/Raw/sample2.bmp");
     BENCHMARK("MakingChunks")
     {
         return BlockedImage(bmp24);
+    };
+
+    BlockedImage b24(bmp24);
+
+    BENCHMARK("DCT")
+    {
+        b24.applyDCT();
     };
 }

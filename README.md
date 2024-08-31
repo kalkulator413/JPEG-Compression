@@ -6,17 +6,18 @@ Roadmap:
 - [x] Set up testing frameworks
 - [x] Read `.bmp` files into memory
 - [x] Change to YCbCr format
-  - [ ] Benchmark against SIMD implementation
+  - [ ] Try using SIMD?
 - [ ] Investigate downscaling
 - [x] Create 8x8 Chunks
-- [ ] Apply DCT on each chunk
+- [x] Apply DCT on each chunk
   - [ ] Try threading on each chunk
+  - [ ] Try using SIMD?
+  - [ ] Maybe try a faster algorithm, like Arai, Agui and Nakajima: "A fast DCT-SQ scheme for images"
 - [ ] Quantize coeffs
-  - [ ] Benchmark against SIMD implementation
+  - [ ] Try using SIMD?
 - [ ] RLE on quantized values (running zig-zag)
 - [ ] Huffman coding
 - [ ] Format as JPEG & save
-- [ ] Investigate if decompression is necessary
 
 Dependencies:
 - `catch2` - for building tests and benchmarks

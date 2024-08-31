@@ -14,5 +14,5 @@ public:
     std::vector<Matrix<float>> Y;
     std::vector<Matrix<float>> Cr;
     std::vector<Matrix<float>> Cb;
-    void applyDCT(); 
+    void applyDCT();
 };
