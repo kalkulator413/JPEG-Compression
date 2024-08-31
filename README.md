@@ -8,7 +8,7 @@ Roadmap:
 - [x] Change to YCbCr format
   - [ ] Benchmark against SIMD implementation
 - [ ] Investigate downscaling
-- [ ] Create 8x8 Chunks
+- [x] Create 8x8 Chunks
 - [ ] Apply DCT on each chunk
   - [ ] Try threading on each chunk
 - [ ] Quantize coeffs

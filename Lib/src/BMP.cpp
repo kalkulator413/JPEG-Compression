@@ -6,6 +6,7 @@
 
 // Partially taken from stackoverflow user https://stackoverflow.com/users/5133242/liam and modified
 BMPImg::BMPImg(const char * filename)
+    : Yp(0, 0), Cb(0, 0), Cr(0, 0)
 {
     using namespace std;
 
@@ -40,8 +41,8 @@ BMPImg::BMPImg(const char * filename)
     int * width_ptr = (int*)(m_bmpInfoHeader+4);
     int * height_ptr = (int*)(m_bmpInfoHeader+8);
 
-    m_width = *width_ptr;
-    m_height = std::abs(*height_ptr);
+    size_t cols = *width_ptr;
+    size_t rows = std::abs(*height_ptr);
 
     size_t m_bitsPerPixel = m_bmpInfoHeader[14];
     if(m_bitsPerPixel != 24)
@@ -54,8 +55,8 @@ BMPImg::BMPImg(const char * filename)
         cerr<<"Comment out offending lines to continue anyways. bpm.h line: "<<__LINE__<<"\n";
     }
 
-    size_t m_rowSize = size_t( std::floor( (m_bitsPerPixel*m_width + 31.)/32 ) ) * 4;
-    size_t m_pixelArraySize = m_rowSize* m_height;
+    size_t m_rowSize = size_t( std::floor( (m_bitsPerPixel*cols + 31.)/32 ) ) * 4;
+    size_t m_pixelArraySize = m_rowSize* rows;
 
     uint8_t* m_pixelData = new uint8_t[m_pixelArraySize];
 
@@ -67,33 +68,58 @@ BMPImg::BMPImg(const char * filename)
 
     // output is in rgb order.
     auto getPixel = [&] (size_t x, size_t y) {
-        assert(x < m_width && y < m_height);
+        assert(x < cols && y < rows);
 
         std::array<uint8_t, 3> v;
 
-        // y = m_height -1- y; //to flip things
+        // y = rows -1- y; //to flip things
         //std::cout<<"y: "<<y<<" x: "<<x<<"\n";
         v[0] = uint8_t( m_pixelData[ m_rowSize*y+3*x+2 ] ); //red
-        v[1] = uint8_t( m_pixelData[ m_rowSize*y+3*x+1 ] ); //greed
+        v[1] = uint8_t( m_pixelData[ m_rowSize*y+3*x+1 ] ); //green
         v[2] = uint8_t( m_pixelData[ m_rowSize*y+3*x+0 ] ); //blue
 
         return v;
     };
 
-    Yp = new Matrix<float>(m_height, m_width);
-    Cb = new Matrix<float>(m_height, m_width);
-    Cr = new Matrix<float>(m_height, m_width);
+    fullRows = std::ceil(rows / 8.0f) * 8u;
+    fullCols = std::ceil(cols / 8.0f) * 8u;
+
+    Yp = Matrix<float>(fullRows, fullCols);
+    Cb = Matrix<float>(fullRows, fullCols);
+    Cr = Matrix<float>(fullRows, fullCols);
 
     // todo: use SIMD for this
-    for (size_t r = 0; r < m_height; ++r)
+    for (size_t r = 0; r < rows; ++r)
     {
-        for (size_t c = 0; c < m_width; ++c)
+        for (size_t c = 0; c < cols; ++c)
         {
             auto [rd, gr, bl] = getPixel(c, r);
 
-            (*Yp)(r, c) = 0.299f * rd + 0.587f * gr + 0.114f * bl;
-            (*Cb)(r, c) = 128.f - 0.168736f * rd - 0.331264f * gr + 0.5f * bl;
-            (*Cr)(r, c) = 128.f + 0.5f * rd - 0.418688f * gr - 0.081312f * bl;
+            Yp(r, c) = 0.299f * rd + 0.587f * gr + 0.114f * bl - 128;
+            Cb(r, c) = -0.168736f * rd - 0.331264f * gr + 0.5f * bl;
+            Cr(r, c) = 0.5f * rd - 0.418688f * gr - 0.081312f * bl;
+        }
+    }
+
+    // padding (vertically)
+    for (size_t r = rows; r < fullRows; ++r)
+    {
+        for (size_t c = 0; c < cols; ++c)
+        {
+            Yp(r, c) = Yp(rows - 1u, c);
+            Cr(r, c) = Cr(rows - 1u, c);
+            Cb(r, c) = Cb(rows - 1u, c);
+        }
+    }
+
+    // padding (horizontally)
+    for (size_t c = cols; c < fullCols; ++c)
+    {
+        for (size_t r = 0; r < fullRows; ++r)
+        {
+            Yp(r, c) = Yp(r, cols - 1u);
+            Cr(r, c) = Cr(r, cols - 1u);
+            Cb(r, c) = Cb(r, cols - 1u);
         }
     }
 
@@ -104,11 +130,11 @@ BMPImg::BMPImg(const char * filename)
 // {
 //     for (int r = m_height - 1; r >= 0; --r)
 //     {
-//         for (size_t c = 0; c < m_width; ++c)
+//         for (size_t c = 0; c < cols; ++c)
 //         {
-//             std::cout << "(" << int(redData[r * m_width + c]) << ", "
-//                 << int(greenData[r * m_width + c]) << ", "
-//                 << int(blueData[r * m_width + c]) << "), ";
+//             std::cout << "(" << int(redData[r * cols + c]) << ", "
+//                 << int(greenData[r * cols + c]) << ", "
+//                 << int(blueData[r * cols + c]) << "), ";
 //         }
 //         std::cout << std::endl;
 //     }
