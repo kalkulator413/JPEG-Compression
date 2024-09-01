@@ -6,6 +6,27 @@
 constexpr float DCT_COEFF = 0.707106781f;
 constexpr float PI = 3.1415926535f;
 static Matrix<Matrix<float>> coeffs(BlockedImage::BLOCK_SIZE, BlockedImage::BLOCK_SIZE);
+static uint8_t qTableY[8*8] =
+{ 16, 11, 10, 16, 24, 40, 51, 61,
+    12, 12, 14, 19, 26, 58, 60, 55,
+    14, 13, 16, 24, 40, 57, 69, 56,
+    14, 17, 22, 29, 51, 87, 80, 62,
+    18, 22, 37, 56, 68,109,103, 77,
+    24, 35, 55, 64, 81,104,113, 92,
+    49, 64, 78, 87,103,121,120,101,
+    72, 92, 95, 98,112,100,103, 99
+};
+static uint8_t qTableC[8*8] =
+{ 17, 18, 24, 47, 99, 99, 99, 99,
+    18, 21, 26, 66, 99, 99, 99, 99,
+    24, 26, 56, 99, 99, 99, 99, 99,
+    47, 66, 99, 99, 99, 99, 99, 99,
+    99, 99, 99, 99, 99, 99, 99, 99,
+    99, 99, 99, 99, 99, 99, 99, 99,
+    99, 99, 99, 99, 99, 99, 99, 99,
+    99, 99, 99, 99, 99, 99, 99, 99
+};
+
 
 BlockedImage::BlockedImage(BMPImg bmp)
     : fullCols(bmp.fullCols), fullRows((bmp.fullRows))
@@ -93,4 +114,34 @@ void BlockedImage::applyDCT()
         dct8x8(Cr[i], coeffs);
         dct8x8(Cb[i], coeffs);
     }
+}
+
+void BlockedImage::quantize()
+{
+    qY.reserve(Y.size());
+    qCb.reserve(Cb.size());
+    qCr.reserve(Cr.size());
+
+    // TODO: try SIMD
+    size_t nChunks = blockedRows * blockedCols;
+    size_t chunkSize = BlockedImage::BLOCK_SIZE * BlockedImage::BLOCK_SIZE;
+    for (size_t i = 0; i < nChunks; ++i)
+    {
+        Matrix<uint8_t, 0> newY(BlockedImage::BLOCK_SIZE, BlockedImage::BLOCK_SIZE);
+        Matrix<uint8_t, 0> newCr(BlockedImage::BLOCK_SIZE, BlockedImage::BLOCK_SIZE);
+        Matrix<uint8_t, 0> newCb(BlockedImage::BLOCK_SIZE, BlockedImage::BLOCK_SIZE);
+        for (size_t j = 0; j < chunkSize; ++j)
+        {
+            newY[j] = round(Y[i][j] / qTableY[j]);
+            newCb[j] = round(Cb[i][j] / qTableC[j]);
+            newCr[j] = round(Cr[i][j] / qTableC[j]);
+        }
+        qY.push_back(newY);
+        qCb.push_back(newCb);
+        qCr.push_back(newCr);
+    }
+
+    Y.resize(0);
+    Cb.resize(0);
+    qCr.resize(0);
 }

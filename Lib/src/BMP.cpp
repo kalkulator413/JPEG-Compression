@@ -89,7 +89,7 @@ BMPImg::BMPImg(const char * filename)
     Cr = Matrix<float>(fullRows, fullCols);
 
     // todo: use SIMD for this
-    for (size_t r = 0; r < rows; ++r)
+    for (int r = rows - 1; r >= 0; --r)
     {
         for (size_t c = 0; c < cols; ++c)
         {
