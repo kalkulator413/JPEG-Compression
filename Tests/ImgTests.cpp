@@ -25,19 +25,36 @@ static void doBlockingTest(const char* filename)
     }
 
     b.applyDCT();
+
+    std::cout << "AFTER DCT:" << std::endl;
+    for (size_t r = 0; r < 8; ++r)
+    {
+        for (size_t c = 0; c < 8; ++c)
+        {
+            std::cout << "(" << round(100* b.Y[0][r * 8 + c]) / 100.f << ", "
+                << round(100* b.Cr[0][r * 8 + c]) / 100.f << ", "
+                << round(100* b.Cb[0][r * 8 + c]) / 100.f << "), ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "----------" << std::endl;
+    std::cout << std::endl;
+
+
     b.quantize();
-    // for (size_t r = 0; r < 8; ++r)
-    // {
-    //     for (size_t c = 0; c < 8; ++c)
-    //     {
-    //         std::cout << "(" << round(100* b.Y[0][r * 8 + c]) / 100.f << ", "
-    //             << round(100* b.Cr[0][r * 8 + c]) / 100.f << ", "
-    //             << round(100* b.Cb[0][r * 8 + c]) / 100.f << "), ";
-    //     }
-    //     std::cout << std::endl;
-    // }
-    // std::cout << "----------" << std::endl;
-    // std::cout << std::endl;
+    std::cout << "AFTER QUANTIZATION:" << std::endl;
+    for (size_t r = 0; r < 8; ++r)
+    {
+        for (size_t c = 0; c < 8; ++c)
+        {
+            std::cout << "(" << b.qY[0][r * 8 + c] << ", "
+                << b.qCr[0][r * 8 + c] << ", "
+                << b.qCb[0][r * 8 + c] << "), ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "----------" << std::endl;
+    std::cout << std::endl;
 }
 
 TEST_CASE("BlockSetup", "[img]")
@@ -66,5 +83,10 @@ TEST_CASE("Reading Images", "[img][!benchmark]")
     BENCHMARK("DCT")
     {
         b24.applyDCT();
+    };
+
+    BENCHMARK("Quantize")
+    {
+        b24.quantize<true>();
     };
 }

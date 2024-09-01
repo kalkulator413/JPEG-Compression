@@ -14,9 +14,11 @@ public:
     std::vector<Matrix<float>> Y;
     std::vector<Matrix<float>> Cr;
     std::vector<Matrix<float>> Cb;
-    std::vector<Matrix<uint8_t, 0>> qY;
-    std::vector<Matrix<uint8_t, 0>> qCr;
-    std::vector<Matrix<uint8_t, 0>> qCb;
+    std::vector<Matrix<int16_t>> qY;
+    std::vector<Matrix<int16_t>> qCr;
+    std::vector<Matrix<int16_t>> qCb;
     void applyDCT();
+
+    template<bool benchmark=false>
     void quantize();
 };

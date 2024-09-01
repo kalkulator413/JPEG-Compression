@@ -13,7 +13,7 @@ Roadmap:
   - [ ] Try threading on each chunk
   - [ ] Try using SIMD?
   - [ ] Maybe try a faster algorithm, like Arai, Agui and Nakajima: "A fast DCT-SQ scheme for images"
-- [ ] Quantize coeffs
+- [x] Quantize coeffs
   - [ ] Try using SIMD?
 - [ ] RLE on quantized values (running zig-zag)
 - [ ] Huffman coding
