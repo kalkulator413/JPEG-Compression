@@ -15,8 +15,6 @@ public:
     void set(size_t r, size_t c, T elem);
     T& operator()(size_t r, size_t c = 0);
     T& operator[](size_t n);
-    void setOnes();
-    void setZeros();
 private:
     T* data;
 };
@@ -89,24 +87,4 @@ inline T& Matrix<T, Alignment>::operator[](size_t n)
 {
     assert(n < nRows * nCols);
     return data[n];
-}
-
-template<typename T, size_t Alignment>
-inline void Matrix<T, Alignment>::setOnes()
-{
-    size_t size = nRows * nCols;
-    for (size_t i = 0; i < size; ++i)
-    {
-        data[i] = static_cast<T>(1);
-    }
-}
-
-template<typename T, size_t Alignment>
-inline void Matrix<T, Alignment>::setZeros()
-{
-    size_t size = nRows * nCols;
-    for (size_t i = 0; i < size; ++i)
-    {
-        data[i] = static_cast<T>(0);
-    }
 }

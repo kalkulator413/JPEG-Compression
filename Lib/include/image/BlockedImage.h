@@ -20,7 +20,7 @@ public:
     void applyDCT();
 
     template<bool benchmark=false>
-    void quantize();
+    void quantize(uint8_t quality);
     
-    void encode(const char* outfile);
+    void encode(uint8_t quality, const char* outfile);
 };

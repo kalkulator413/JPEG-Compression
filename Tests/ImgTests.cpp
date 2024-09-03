@@ -26,35 +26,35 @@ static void doBlockingTest(const char* filename)
 
     b.applyDCT();
 
-    std::cout << "AFTER DCT:" << std::endl;
-    for (size_t r = 0; r < 8; ++r)
-    {
-        for (size_t c = 0; c < 8; ++c)
-        {
-            std::cout << "(" << round(100* b.Y[0][r * 8 + c]) / 100.f << ", "
-                << round(100* b.Cr[0][r * 8 + c]) / 100.f << ", "
-                << round(100* b.Cb[0][r * 8 + c]) / 100.f << "), ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "----------" << std::endl;
-    std::cout << std::endl;
+    // std::cout << "AFTER DCT:" << std::endl;
+    // for (size_t r = 0; r < 8; ++r)
+    // {
+    //     for (size_t c = 0; c < 8; ++c)
+    //     {
+    //         std::cout << "(" << round(100* b.Y[0][r * 8 + c]) / 100.f << ", "
+    //             << round(100* b.Cr[0][r * 8 + c]) / 100.f << ", "
+    //             << round(100* b.Cb[0][r * 8 + c]) / 100.f << "), ";
+    //     }
+    //     std::cout << std::endl;
+    // }
+    // std::cout << "----------" << std::endl;
+    // std::cout << std::endl;
 
 
-    b.quantize();
-    std::cout << "AFTER QUANTIZATION:" << std::endl;
-    for (size_t r = 0; r < 8; ++r)
-    {
-        for (size_t c = 0; c < 8; ++c)
-        {
-            std::cout << "(" << b.qY[0][r * 8 + c] << ", "
-                << b.qCr[0][r * 8 + c] << ", "
-                << b.qCb[0][r * 8 + c] << "), ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "----------" << std::endl;
-    std::cout << std::endl;
+    b.quantize(100u);
+    // std::cout << "AFTER QUANTIZATION:" << std::endl;
+    // for (size_t r = 0; r < 8; ++r)
+    // {
+    //     for (size_t c = 0; c < 8; ++c)
+    //     {
+    //         std::cout << "(" << b.qY[0][r * 8 + c] << ", "
+    //             << b.qCr[0][r * 8 + c] << ", "
+    //             << b.qCb[0][r * 8 + c] << "), ";
+    //     }
+    //     std::cout << std::endl;
+    // }
+    // std::cout << "----------" << std::endl;
+    // std::cout << std::endl;
 }
 
 TEST_CASE("BlockSetup", "[img]")
@@ -87,7 +87,12 @@ TEST_CASE("Reading Images", "[img][!benchmark]")
 
     BENCHMARK("Quantize")
     {
-        b24.quantize<true>();
+        b24.quantize<true>(100u);
+    };
+
+    BENCHMARK("Encode")
+    {
+        b24.encode(100u, "./Data/Processed/sampl2.jpg");
     };
 }
 
@@ -97,10 +102,10 @@ static void processBMPFile(std::string str)
     BMPImg bmp(oldName.c_str());
     BlockedImage b(bmp);
     b.applyDCT();
-    b.quantize();
+    b.quantize(100);
     std::string newName = "./Data/Processed/" + str + ".jpg";
     std::cout << "created " << newName << std::endl;
-    b.encode(newName.c_str());
+    b.encode(100u, newName.c_str());
 }
 
 TEST_CASE("Writing files")
@@ -139,7 +144,7 @@ TEST_CASE("BMP24")
     std::cout << std::endl;
 
 
-    b.quantize();
+    b.quantize(100);
     std::cout << "AFTER QUANTIZATION:" << std::endl;
     for (size_t r = 0; r < 8; ++r)
     {
@@ -154,5 +159,5 @@ TEST_CASE("BMP24")
     std::cout << "----------" << std::endl;
     std::cout << std::endl;
 
-    b.encode("./Data/Processed/bmp_24.jpg");
+    b.encode(100u, "./Data/Processed/bmp_24.jpg");
 };

@@ -1,38 +1,14 @@
+#include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstring>
 #include <image/BlockedImage.h>
 #include <file/Bitstream.h>
-#include <iostream>
 
 // 1 / sqrt(2)
 constexpr float DCT_COEFF = 0.707106781f;
 constexpr float PI = 3.1415926535f;
 static Matrix<Matrix<float>> coeffs(BlockedImage::BLOCK_SIZE, BlockedImage::BLOCK_SIZE);
-
-// avoid division by storing inverses!!
-static float qTableYInv[8*8] =
-{ 
-    1.f/16, 1.f/11, 1.f/10, 1.f/16, 1.f/24, 1.f/40, 1.f/51, 1.f/61,
-    1.f/12, 1.f/12, 1.f/14, 1.f/19, 1.f/26, 1.f/58, 1.f/60, 1.f/55,
-    1.f/14, 1.f/13, 1.f/16, 1.f/24, 1.f/40, 1.f/57, 1.f/69, 1.f/56,
-    1.f/14, 1.f/17, 1.f/22, 1.f/29, 1.f/51, 1.f/87, 1.f/80, 1.f/62,
-    1.f/18, 1.f/22, 1.f/37, 1.f/56, 1.f/68,1.f/109,1.f/103, 1.f/77,
-    1.f/24, 1.f/35, 1.f/55, 1.f/64, 1.f/81, 1.f/104, 1.f/113, 1.f/92,
-    1.f/49, 1.f/64, 1.f/78, 1.f/87, 1.f/103, 1.f/121, 1.f/120, 1.f/101,
-    1.f/72, 1.f/92, 1.f/95, 1.f/98, 1.f/112, 1.f/100, 1.f/103, 1.f/99
-};
-
-static float qTableCInv[8*8] =
-{ 
-    1.f/17, 1.f/18, 1.f/24, 1.f/47, 1.f/99, 1.f/99, 1.f/99, 1.f/99,
-    1.f/18, 1.f/21, 1.f/26, 1.f/66, 1.f/99, 1.f/99, 1.f/99, 1.f/99,
-    1.f/24, 1.f/26, 1.f/56, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99,
-    1.f/47, 1.f/66, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99,
-    1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99,
-    1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99,
-    1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99,
-    1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99, 1.f/99
-};
 
 static uint8_t qTableY[8*8] =
 {
@@ -189,8 +165,21 @@ void BlockedImage::applyDCT()
 }
 
 template<>
-void BlockedImage::quantize<true>()
+void BlockedImage::quantize<true>(uint8_t quality)
 {
+    // formula from libjpeg
+    quality = quality < 50 ? 5000 / quality : 200 - quality * 2;
+    // store inverses to avoid division
+    float qInvY[64];
+    float qInvC[64];
+    for (size_t i = 0u; i < 64u; ++i)
+    {
+        uint16_t lum = std::clamp<uint16_t>((qTableY[i] * quality + 50) / 100, 1u, 255u);
+        uint16_t chrom = std::clamp<uint16_t>((qTableC[i] * quality + 50) / 100, 1u, 255u);
+        qInvY[i] = 1.f / lum;
+        qInvC[i] = 1.f / chrom;
+    }
+
     qY.reserve(Y.size());
     qCb.reserve(Cb.size());
     qCr.reserve(Cr.size());
@@ -205,9 +194,9 @@ void BlockedImage::quantize<true>()
         Matrix<int16_t> newCb(BlockedImage::BLOCK_SIZE, BlockedImage::BLOCK_SIZE);
         for (size_t j = 0; j < chunkSize; ++j)
         {
-            newY[j] = round(Y[i][j] * qTableYInv[j]);
-            newCb[j] = round(Cb[i][j] * qTableCInv[j]);
-            newCr[j] = round(Cr[i][j] * qTableCInv[j]);
+            newY[j] = round(Y[i][j] * qInvY[j]);
+            newCb[j] = round(Cb[i][j] * qInvC[j]);
+            newCr[j] = round(Cr[i][j] * qInvC[j]);
         }
         qY.push_back(newY);
         qCb.push_back(newCb);
@@ -216,8 +205,21 @@ void BlockedImage::quantize<true>()
 }
 
 template<>
-void BlockedImage::quantize<false>()
+void BlockedImage::quantize<false>(uint8_t quality)
 {
+    // formula from libjpeg
+    quality = quality < 50 ? 5000 / quality : 200 - quality * 2;
+    // store inverses to avoid division
+    float qInvY[64];
+    float qInvC[64];
+    for (size_t i = 0u; i < 64u; ++i)
+    {
+        uint16_t lum = std::clamp<uint16_t>((qTableY[i] * quality + 50) / 100, 1u, 255u);
+        uint16_t chrom = std::clamp<uint16_t>((qTableC[i] * quality + 50) / 100, 1u, 255u);
+        qInvY[i] = 1.f / lum;
+        qInvC[i] = 1.f / chrom;
+    }
+
     qY.reserve(Y.size());
     qCb.reserve(Cb.size());
     qCr.reserve(Cr.size());
@@ -232,9 +234,9 @@ void BlockedImage::quantize<false>()
         Matrix<int16_t> newCb(BlockedImage::BLOCK_SIZE, BlockedImage::BLOCK_SIZE);
         for (size_t j = 0; j < chunkSize; ++j)
         {
-            newY[j] = round(Y[i][j] * qTableYInv[j]);
-            newCb[j] = round(Cb[i][j] * qTableCInv[j]);
-            newCr[j] = round(Cr[i][j] * qTableCInv[j]);
+            newY[j] = round(Y[i][j] * qInvY[j]);
+            newCb[j] = round(Cb[i][j] * qInvC[j]);
+            newCr[j] = round(Cr[i][j] * qInvC[j]);
         }
         qY.push_back(newY);
         qCb.push_back(newCb);
@@ -303,7 +305,7 @@ void encode8x8(Matrix<int16_t>& chunk, int16_t& prevDC, BitStream& b,
         b.writeBits(huffmanAC[0x00]);
 }
 
-void BlockedImage::encode(const char* outfile)
+void BlockedImage::encode(uint8_t quality, const char* outfile)
 {
     BitStream b(outfile);
 
@@ -342,19 +344,23 @@ void BlockedImage::encode(const char* outfile)
     // write quantization tables
     b.blockHeader(0xDB, 2 + 2 * (1 + 8*8));
 
-    b.meanWrite(0x00);
+    // formula from libjpeg
+    quality = quality < 50 ? 5000 / quality : 200 - quality * 2;
+    float scaledY[64];
+    float scaledC[64];
     for (size_t i = 0u; i < 64u; ++i)
     {
-        b.meanWrite(qTableY[ZigZagInv[i]]);
-        // b.meanWrite(qTableY[i]);
+        scaledY[i] = std::clamp<uint16_t>((qTableY[i] * quality + 50) / 100, 1u, 255u);
+        scaledC[i] = std::clamp<uint16_t>((qTableC[i] * quality + 50) / 100, 1u, 255u);
     }
+
+    b.meanWrite(0x00);
+    for (size_t i = 0u; i < 64u; ++i)
+        b.meanWrite(scaledY[ZigZagInv[i]]);
 
     b.meanWrite(0x01);
     for (size_t i = 0u; i < 64u; ++i)
-    {
-        b.meanWrite(qTableC[ZigZagInv[i]]);
-        // b.meanWrite(qTableC[i]);
-    }
+        b.meanWrite(scaledC[ZigZagInv[i]]);
 
     // write image info
     b.blockHeader(0xC0, 2+6+3*3);
@@ -453,8 +459,6 @@ void BlockedImage::encode(const char* outfile)
         encode8x8(qY[i], prevYDC, b, huffmanLuminanceDC, huffmanLuminanceAC, codewords);
         encode8x8(qCb[i], prevCbDC, b, huffmanChrominanceDC, huffmanChrominanceAC, codewords);
         encode8x8(qCr[i], prevCrDC, b, huffmanChrominanceDC, huffmanChrominanceAC, codewords);
-
-        std::cout << "chunk " << i << std::endl; 
     }
 
     b.flush();
