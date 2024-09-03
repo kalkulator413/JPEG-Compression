@@ -90,3 +90,23 @@ TEST_CASE("Reading Images", "[img][!benchmark]")
         b24.quantize<true>();
     };
 }
+
+static void processBMPFile(std::string str)
+{
+    std::string oldName = "./Data/Raw/" + str + ".bmp";
+    BMPImg bmp(oldName.c_str());
+    BlockedImage b(bmp);
+    b.applyDCT();
+    b.quantize();
+    std::string newName = "./Data/Processed/" + str + ".jpg";
+    std::cout << "created " << newName << std::endl;
+    b.encode(newName.c_str());
+}
+
+TEST_CASE("Writing files")
+{
+    processBMPFile("bmp_24");
+    processBMPFile("greenland_grid_velo");
+    processBMPFile("sample2");
+    processBMPFile("snail");
+};

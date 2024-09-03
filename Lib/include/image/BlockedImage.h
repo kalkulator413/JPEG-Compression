@@ -21,4 +21,6 @@ public:
 
     template<bool benchmark=false>
     void quantize();
+    
+    void encode(const char* outfile);
 };

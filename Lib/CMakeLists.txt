@@ -1,6 +1,7 @@
 add_library(Lib 
     src/BMP.cpp
     src/BlockedImage.cpp
+    src/Bitstream.cpp
 )
 
 message("Lib current source dir = ${CMAKE_CURRENT_SOURCE_DIR}")

@@ -17,7 +17,7 @@ Roadmap:
   - [ ] Try using SIMD?
 - [ ] RLE on quantized values (running zig-zag)
 - [ ] Huffman coding
-- [ ] Format as JPEG & save
+- [x] Format as JPEG & save
 
 Dependencies:
 - `catch2` - for building tests and benchmarks
