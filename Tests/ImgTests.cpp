@@ -110,3 +110,49 @@ TEST_CASE("Writing files")
     processBMPFile("sample2");
     processBMPFile("snail");
 };
+
+TEST_CASE("BMP24")
+{
+    BMPImg bmp("./Data/Raw/bmp_24.bmp");
+
+    CHECK(round(bmp.Yp(0, 0)) == 76 - 128);
+    CHECK(round(bmp.Yp(1, 0)) == 76 - 128);
+    CHECK(round(bmp.Yp(0, 6)) == 150 - 128);
+    CHECK(round(bmp.Yp(1, 7)) == 150 - 128);
+
+    BlockedImage b(bmp);
+    b.applyDCT();
+    Matrix<float> fullRed = b.Y[10 * b.blockedCols];
+
+    std::cout << "AFTER DCT:" << std::endl;
+    for (size_t r = 0; r < 8; ++r)
+    {
+        for (size_t c = 0; c < 8; ++c)
+        {
+            std::cout << "(" << round(100* b.Y[10 * b.blockedCols][r * 8 + c]) / 100.f << ", "
+                << round(100* b.Cr[10 * b.blockedCols][r * 8 + c]) / 100.f << ", "
+                << round(100* b.Cb[10 * b.blockedCols][r * 8 + c]) / 100.f << "), ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "----------" << std::endl;
+    std::cout << std::endl;
+
+
+    b.quantize();
+    std::cout << "AFTER QUANTIZATION:" << std::endl;
+    for (size_t r = 0; r < 8; ++r)
+    {
+        for (size_t c = 0; c < 8; ++c)
+        {
+            std::cout << "(" << b.qY[10 * b.blockedCols][r * 8 + c] << ", "
+                << b.qCr[10 * b.blockedCols][r * 8 + c] << ", "
+                << b.qCb[10 * b.blockedCols][r * 8 + c] << "), ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "----------" << std::endl;
+    std::cout << std::endl;
+
+    b.encode("./Data/Processed/bmp_24.jpg");
+};

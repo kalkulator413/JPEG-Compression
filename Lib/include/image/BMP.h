@@ -8,6 +8,7 @@ public:
 
     BMPImg(const char * filename);
     ~BMPImg() = default;
+    void display();
 
     Matrix<float> Yp;
     Matrix<float> Cb;

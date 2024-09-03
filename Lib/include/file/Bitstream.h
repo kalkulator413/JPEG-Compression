@@ -2,6 +2,7 @@
 
 struct Bits
 {
+    Bits() = default;
     Bits(uint16_t _data, uint8_t _nBits) : nBits(_nBits), data(_data) {};
     uint8_t nBits;
     uint16_t data;

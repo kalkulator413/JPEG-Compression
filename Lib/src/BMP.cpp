@@ -72,7 +72,7 @@ BMPImg::BMPImg(const char * filename)
 
         std::array<uint8_t, 3> v;
 
-        // y = rows -1- y; //to flip things
+        y = rows -1- y; //to flip things
         //std::cout<<"y: "<<y<<" x: "<<x<<"\n";
         v[0] = uint8_t( m_pixelData[ m_rowSize*y+3*x+2 ] ); //red
         v[1] = uint8_t( m_pixelData[ m_rowSize*y+3*x+1 ] ); //green
@@ -89,7 +89,7 @@ BMPImg::BMPImg(const char * filename)
     Cr = Matrix<float>(fullRows, fullCols);
 
     // todo: use SIMD for this
-    for (int r = rows - 1; r >= 0; --r)
+    for (size_t r = 0; r < rows; ++r)
     {
         for (size_t c = 0; c < cols; ++c)
         {
@@ -126,16 +126,16 @@ BMPImg::BMPImg(const char * filename)
     delete[] m_pixelData;
 }
 
-// void BMPImg::display()
-// {
-//     for (int r = m_height - 1; r >= 0; --r)
-//     {
-//         for (size_t c = 0; c < cols; ++c)
-//         {
-//             std::cout << "(" << int(redData[r * cols + c]) << ", "
-//                 << int(greenData[r * cols + c]) << ", "
-//                 << int(blueData[r * cols + c]) << "), ";
-//         }
-//         std::cout << std::endl;
-//     }
-// }
+void BMPImg::display()
+{
+    for (size_t r = 0; r < fullRows; r++)
+    {
+        for (size_t c = 0; c < fullCols; ++c)
+        {
+            std::cout << "(" << int(Yp[r * fullCols + c]) << ", "
+                << int(Cb[r * fullCols + c]) << ", "
+                << int(Cr[r * fullCols + c]) << "), ";
+        }
+        std::cout << std::endl;
+    }
+}

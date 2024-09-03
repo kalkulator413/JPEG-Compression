@@ -15,8 +15,8 @@ Roadmap:
   - [ ] Maybe try a faster algorithm, like Arai, Agui and Nakajima: "A fast DCT-SQ scheme for images"
 - [x] Quantize coeffs
   - [ ] Try using SIMD?
-- [ ] RLE on quantized values (running zig-zag)
-- [ ] Huffman coding
+- [x] RLE on quantized values (running zig-zag)
+- [x] Huffman coding
 - [x] Format as JPEG & save
 
 Dependencies:

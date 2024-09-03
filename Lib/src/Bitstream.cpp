@@ -6,7 +6,7 @@ BitStream::BitStream(const char* fname)
 void BitStream::writeBits(Bits bits)
 {
     nBits += bits.nBits;
-    buffer = buffer >> bits.nBits;
+    buffer = buffer << bits.nBits;
     buffer = buffer | bits.data;
 
     while (nBits >= 8)
