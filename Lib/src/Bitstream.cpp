@@ -18,7 +18,7 @@ void BitStream::writeBits(Bits bits)
 
         // coincidental block marker
         if (byte == 0xFF)
-            outfile.put(0);
+            outfile.put(0x00);
     }
 }
 

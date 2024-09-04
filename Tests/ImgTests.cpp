@@ -3,6 +3,8 @@
 #include "image/BlockedImage.h"
 #include <iostream>
 
+static uint8_t QUALITY = 100u;
+
 static void doBlockingTest(const char* filename)
 {
     BMPImg bmp(filename);
@@ -41,7 +43,7 @@ static void doBlockingTest(const char* filename)
     // std::cout << std::endl;
 
 
-    b.quantize(100u);
+    b.quantize(QUALITY);
     // std::cout << "AFTER QUANTIZATION:" << std::endl;
     // for (size_t r = 0; r < 8; ++r)
     // {
@@ -87,12 +89,12 @@ TEST_CASE("Reading Images", "[img][!benchmark]")
 
     BENCHMARK("Quantize")
     {
-        b24.quantize<true>(100u);
+        b24.quantize<true>(QUALITY);
     };
 
     BENCHMARK("Encode")
     {
-        b24.encode(100u, "./Data/Processed/sampl2.jpg");
+        b24.encode(QUALITY,"./Data/Processed/sampl2.jpg");
     };
 }
 
@@ -105,7 +107,7 @@ static void processBMPFile(std::string str)
     b.quantize(100);
     std::string newName = "./Data/Processed/" + str + ".jpg";
     std::cout << "created " << newName << std::endl;
-    b.encode(100u, newName.c_str());
+    b.encode(QUALITY, newName.c_str());
 }
 
 TEST_CASE("Writing files")
@@ -159,5 +161,5 @@ TEST_CASE("BMP24")
     std::cout << "----------" << std::endl;
     std::cout << std::endl;
 
-    b.encode(100u, "./Data/Processed/bmp_24.jpg");
+    b.encode(QUALITY, "./Data/Processed/bmp_24.jpg");
 };

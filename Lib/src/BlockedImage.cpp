@@ -248,13 +248,13 @@ void BlockedImage::quantize<false>(uint8_t quality)
     Cr.clear();
 }
 
-void genTable(const uint8_t* codesPerBitsize, const uint8_t* values, Bits codes[])
+void genTable(const uint8_t numCodes[16], const uint8_t* values, Bits result[256])
 {
-  int huffmanCode = 0;
-  for (size_t numBits = 1u; numBits <= 16u; numBits++)
+  auto huffmanCode = 0;
+  for (auto numBits = 1; numBits <= 16; numBits++)
   {
-    for (uint i = 0u; i < codesPerBitsize[numBits - 1u]; i++)
-      codes[*values++] = Bits(huffmanCode++, numBits);
+    for (auto i = 0; i < numCodes[numBits - 1]; i++)
+      result[*values++] = Bits(huffmanCode++, numBits);
     huffmanCode <<= 1;
   }
 }
@@ -262,7 +262,7 @@ void genTable(const uint8_t* codesPerBitsize, const uint8_t* values, Bits codes[
 void encode8x8(Matrix<int16_t>& chunk, int16_t& prevDC, BitStream& b,
     const Bits huffmanDC[256], const Bits huffmanAC[256], const Bits* codewords)
 {
-    int16_t diff = chunk[0] - prevDC;
+    int diff = chunk[0] - prevDC;
     if (diff == 0)
         b.writeBits(huffmanDC[0x00]);
     else
@@ -346,8 +346,8 @@ void BlockedImage::encode(uint8_t quality, const char* outfile)
 
     // formula from libjpeg
     quality = quality < 50 ? 5000 / quality : 200 - quality * 2;
-    float scaledY[64];
-    float scaledC[64];
+    uint16_t scaledY[64];
+    uint16_t scaledC[64];
     for (size_t i = 0u; i < 64u; ++i)
     {
         scaledY[i] = std::clamp<uint16_t>((qTableY[i] * quality + 50) / 100, 1u, 255u);
@@ -367,12 +367,10 @@ void BlockedImage::encode(uint8_t quality, const char* outfile)
     // # of bits per channel
     b.meanWrite(0x08);
     // image dimensions
-    uint16_t height = fullRows;
-    uint16_t width = fullCols;
-    b.meanWrite(height >> 8);
-    b.meanWrite(height & 0xFF);
-    b.meanWrite(width >> 8);
-    b.meanWrite(width & 0xFF);
+    b.meanWrite(fullRows >> 8);
+    b.meanWrite(fullRows & 0xFF);
+    b.meanWrite(fullCols >> 8);
+    b.meanWrite(fullCols & 0xFF);
 
     // sampling & quantization tables
     b.meanWrite(3);
@@ -417,9 +415,9 @@ void BlockedImage::encode(uint8_t quality, const char* outfile)
         b.meanWrite(idx);
         b.meanWrite(idx == 1 ? 0x00 : 0x11);
     }
-    b.meanWrite(0);
-    b.meanWrite(63);
-    b.meanWrite(0);
+    b.meanWrite(0x00);
+    b.meanWrite(0x63);
+    b.meanWrite(0x00);
 
     // run length encoding + huffman
 

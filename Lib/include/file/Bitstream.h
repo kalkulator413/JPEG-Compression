@@ -19,6 +19,6 @@ public:
     ~BitStream();
 private:
     std::ofstream outfile;
-    size_t nBits = 0;
+    uint8_t nBits = 0;
     uint32_t buffer;
 };

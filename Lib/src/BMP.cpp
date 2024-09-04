@@ -74,9 +74,9 @@ BMPImg::BMPImg(const char * filename)
 
         y = rows -1- y; //to flip things
         //std::cout<<"y: "<<y<<" x: "<<x<<"\n";
-        v[0] = uint8_t( m_pixelData[ m_rowSize*y+3*x+2 ] ); //red
-        v[1] = uint8_t( m_pixelData[ m_rowSize*y+3*x+1 ] ); //green
-        v[2] = uint8_t( m_pixelData[ m_rowSize*y+3*x+0 ] ); //blue
+        v[0] = m_pixelData[ m_rowSize*y+3*x+2 ]; //red
+        v[1] = m_pixelData[ m_rowSize*y+3*x+1 ]; //green
+        v[2] = m_pixelData[ m_rowSize*y+3*x+0 ]; //blue
 
         return v;
     };
