@@ -1,5 +1,5 @@
 add_library(Lib 
-    src/BMP.cpp
+    src/PPM.cpp
     src/BlockedImage.cpp
     src/Bitstream.cpp
 )

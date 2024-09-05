@@ -76,8 +76,8 @@ const uint8_t ZigZagInv[8*8] =
     53,60,61,54,47,55,62,63
 };
 
-BlockedImage::BlockedImage(BMPImg bmp)
-    : fullCols(bmp.fullCols), fullRows((bmp.fullRows))
+BlockedImage::BlockedImage(PPMImg ppm)
+    : fullCols(ppm.fullCols), fullRows((ppm.fullRows))
 {
     blockedCols = fullCols / 8u;
     blockedRows = fullRows / 8u;
@@ -96,9 +96,9 @@ BlockedImage::BlockedImage(BMPImg bmp)
 
             for (size_t j = 0; j < BlockedImage::BLOCK_SIZE; ++j)
             {
-                std::memcpy(& (currY(j, 0)), & (bmp.Yp(r + j, c)), BlockedImage::BLOCK_SIZE * sizeof(float));
-                std::memcpy(& (currCr(j, 0)), & (bmp.Cr(r + j, c)), BlockedImage::BLOCK_SIZE * sizeof(float));
-                std::memcpy(& (currCb(j, 0)), & (bmp.Cb(r + j, c)), BlockedImage::BLOCK_SIZE * sizeof(float));
+                std::memcpy(& (currY(j, 0)), & (ppm.Yp(r + j, c)), BlockedImage::BLOCK_SIZE * sizeof(float));
+                std::memcpy(& (currCr(j, 0)), & (ppm.Cr(r + j, c)), BlockedImage::BLOCK_SIZE * sizeof(float));
+                std::memcpy(& (currCb(j, 0)), & (ppm.Cb(r + j, c)), BlockedImage::BLOCK_SIZE * sizeof(float));
             }
 
             Y.push_back(currY);

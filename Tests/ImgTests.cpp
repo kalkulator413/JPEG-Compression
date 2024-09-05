@@ -7,8 +7,8 @@ static uint8_t QUALITY = 100u;
 
 static void doBlockingTest(const char* filename)
 {
-    BMPImg bmp(filename);
-    BlockedImage b(bmp);
+    PPMImg ppm(filename);
+    BlockedImage b(ppm);
 
     for (size_t i = 0; i < b.blockedRows; ++i)
     {
@@ -20,7 +20,7 @@ static void doBlockingTest(const char* filename)
             {
                 for (size_t c = 0; c < 8; ++c)
                 {
-                    CHECK(currY(r, c) == bmp.Yp(8u * i + r, 8u * j + c));
+                    CHECK(currY(r, c) == ppm.Yp(8u * i + r, 8u * j + c));
                 }
             }
         }
@@ -61,26 +61,29 @@ static void doBlockingTest(const char* filename)
 
 TEST_CASE("BlockSetup", "[img]")
 {
-    doBlockingTest("./Data/Raw/bmp_24.bmp");
-    doBlockingTest("./Data/Raw/greenland_grid_velo.bmp");
-    doBlockingTest("./Data/Raw/sample2.bmp");
-    doBlockingTest("./Data/Raw/snail.bmp");
+    doBlockingTest("./Data/Raw/blackbuck.ppm");
+    doBlockingTest("./Data/Raw/first.ppm");
+    doBlockingTest("./Data/Raw/sines.ppm");
+    doBlockingTest("./Data/Raw/snail.ppm");
+    doBlockingTest("./Data/Raw/sample1.ppm");
+    doBlockingTest("./Data/Raw/sample2.ppm");
+    doBlockingTest("./Data/Raw/sample3.ppm");
 }
 
 TEST_CASE("Reading Images", "[img][!benchmark]")
 {
-    BENCHMARK("BMP24")
+    BENCHMARK("Read PPM")
     {
-        return BMPImg("./Data/Raw/sample2.bmp");
+        return PPMImg("./Data/Raw/sample1.ppm");
     };
 
-    BMPImg bmp24("./Data/Raw/sample2.bmp");
+    PPMImg ppm("./Data/Raw/sample1.ppm");
     BENCHMARK("MakingChunks")
     {
-        return BlockedImage(bmp24);
+        return BlockedImage(ppm);
     };
 
-    BlockedImage b24(bmp24);
+    BlockedImage b24(ppm);
 
     BENCHMARK("DCT")
     {
@@ -94,15 +97,15 @@ TEST_CASE("Reading Images", "[img][!benchmark]")
 
     BENCHMARK("Encode")
     {
-        b24.encode(QUALITY,"./Data/Processed/sampl2.jpg");
+        b24.encode(QUALITY,"./Data/Processed/sample1.jpg");
     };
 }
 
-static void processBMPFile(std::string str)
+static void processPPMFile(std::string str)
 {
-    std::string oldName = "./Data/Raw/" + str + ".bmp";
-    BMPImg bmp(oldName.c_str());
-    BlockedImage b(bmp);
+    std::string oldName = "./Data/Raw/" + str + ".ppm";
+    PPMImg ppm(oldName.c_str());
+    BlockedImage b(ppm);
     b.applyDCT();
     b.quantize(100);
     std::string newName = "./Data/Processed/" + str + ".jpg";
@@ -112,54 +115,11 @@ static void processBMPFile(std::string str)
 
 TEST_CASE("Writing files")
 {
-    processBMPFile("bmp_24");
-    processBMPFile("greenland_grid_velo");
-    processBMPFile("sample2");
-    processBMPFile("snail");
-};
-
-TEST_CASE("BMP24")
-{
-    BMPImg bmp("./Data/Raw/bmp_24.bmp");
-
-    CHECK(round(bmp.Yp(0, 0)) == 76 - 128);
-    CHECK(round(bmp.Yp(1, 0)) == 76 - 128);
-    CHECK(round(bmp.Yp(0, 6)) == 150 - 128);
-    CHECK(round(bmp.Yp(1, 7)) == 150 - 128);
-
-    BlockedImage b(bmp);
-    b.applyDCT();
-    Matrix<float> fullRed = b.Y[10 * b.blockedCols];
-
-    std::cout << "AFTER DCT:" << std::endl;
-    for (size_t r = 0; r < 8; ++r)
-    {
-        for (size_t c = 0; c < 8; ++c)
-        {
-            std::cout << "(" << round(100* b.Y[10 * b.blockedCols][r * 8 + c]) / 100.f << ", "
-                << round(100* b.Cr[10 * b.blockedCols][r * 8 + c]) / 100.f << ", "
-                << round(100* b.Cb[10 * b.blockedCols][r * 8 + c]) / 100.f << "), ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "----------" << std::endl;
-    std::cout << std::endl;
-
-
-    b.quantize(100);
-    std::cout << "AFTER QUANTIZATION:" << std::endl;
-    for (size_t r = 0; r < 8; ++r)
-    {
-        for (size_t c = 0; c < 8; ++c)
-        {
-            std::cout << "(" << b.qY[10 * b.blockedCols][r * 8 + c] << ", "
-                << b.qCr[10 * b.blockedCols][r * 8 + c] << ", "
-                << b.qCb[10 * b.blockedCols][r * 8 + c] << "), ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "----------" << std::endl;
-    std::cout << std::endl;
-
-    b.encode(QUALITY, "./Data/Processed/bmp_24.jpg");
+    processPPMFile("blackbuck");
+    processPPMFile("first");
+    processPPMFile("sines");
+    processPPMFile("snail");
+    processPPMFile("sample1");
+    processPPMFile("sample2");
+    processPPMFile("sample3");
 };

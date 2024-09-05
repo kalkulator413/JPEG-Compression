@@ -1,5 +1,5 @@
 #include <cstdint>
-#include <image/BMP.h>
+#include <image/PPM.h>
 #include <vector>
 
 class BlockedImage
@@ -10,7 +10,7 @@ public:
     size_t blockedRows;
     size_t fullCols;
     size_t fullRows;
-    BlockedImage(BMPImg bmp);
+    BlockedImage(PPMImg ppm);
     std::vector<Matrix<float>> Y;
     std::vector<Matrix<float>> Cr;
     std::vector<Matrix<float>> Cb;

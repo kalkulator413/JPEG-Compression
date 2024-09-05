@@ -17,9 +17,9 @@ Roadmap:
   - [ ] Try using SIMD?
 - [x] RLE on quantized values (running zig-zag)
 - [x] Huffman coding
-- [x] Format as JPEG & save
+- [x] Format w/ JFIF & save
 
 Dependencies:
 - `catch2` - for building tests and benchmarks
 
-All data in Data/Raw is obtained courtesy of [FileSampleHub](https://filesampleshub.com/format/image/bmp) and [University of Southern Carolina](https://people.math.sc.edu/Burkardt/data/bmp/bmp.html)
+All data in Data/Raw is obtained courtesy of [FileSampleHub](https://filesamples.com/formats/ppm) and [University of Southern Carolina](https://people.sc.fsu.edu/~jburkardt/data/ppma/ppma.html)
