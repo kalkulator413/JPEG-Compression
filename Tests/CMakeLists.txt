@@ -1,7 +1,6 @@
 include(AddCatch2)
 
 set(SOURCE_FILES	
-	MatrixTests.cpp
 	ImgTests.cpp
 )
 
