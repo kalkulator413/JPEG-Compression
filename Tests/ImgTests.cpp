@@ -2,7 +2,6 @@
 #include <catch2/benchmark/catch_benchmark.hpp>
 #include "image/BlockedImage.h"
 #include <iostream>
-#include <Magick++.h>
 
 static uint8_t QUALITY = 100u;
 
@@ -98,7 +97,7 @@ TEST_CASE("Reading Images", "[img][!benchmark]")
 
     BENCHMARK("Encode")
     {
-        b24.encode(QUALITY,"./Data/Processed/sample1.jpg");
+        b24.encode(QUALITY,"/dev/null");
     };
 }
 
