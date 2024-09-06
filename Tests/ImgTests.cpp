@@ -3,7 +3,7 @@
 #include "image/BlockedImage.h"
 #include <iostream>
 
-static uint8_t QUALITY = 100u;
+static uint8_t QUALITY = 70u;
 
 static void doBlockingTest(const char* filename)
 {
