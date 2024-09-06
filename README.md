@@ -4,8 +4,8 @@ Roadmap:
 - [x] Set up project structure and cmake
 - [x] Set up Math library w/ aligned data
 - [x] Set up testing frameworks
-- [x] Read `.bmp` files into memory
-- [x] Change to YCbCr format
+- [x] Read `.ppm` files into memory
+- [x] Change to YCbCr formatu
   - [ ] Try using SIMD?
 - [ ] Investigate downscaling
 - [x] Create 8x8 Chunks

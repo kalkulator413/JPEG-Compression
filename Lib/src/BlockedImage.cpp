@@ -250,10 +250,10 @@ void BlockedImage::quantize<false>(uint8_t quality)
 
 void genTable(const uint8_t numCodes[16], const uint8_t* values, Bits result[256])
 {
-  auto huffmanCode = 0;
-  for (auto numBits = 1; numBits <= 16; numBits++)
+  uint16_t huffmanCode = 0u;
+  for (uint8_t numBits = 1u; numBits <= 16u; numBits++)
   {
-    for (auto i = 0; i < numCodes[numBits - 1]; i++)
+    for (uint8_t i = 0u; i < numCodes[numBits - 1]; i++)
       result[*values++] = Bits(huffmanCode++, numBits);
     huffmanCode <<= 1;
   }
