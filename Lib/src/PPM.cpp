@@ -1,131 +1,147 @@
-#include <fstream>
 #include <iostream>
-#include <cassert>
 #include <image/PPM.h>
-#include <Magick++.h>
 
 PPMImg::PPMImg(const char * filename)
     : Yp(0, 0), Cb(0, 0), Cr(0, 0)
 {
-    // using namespace std;
+    using namespace std;
+    FILE* stream;
+    stream = fopen(filename, "r");
 
-    // ifstream inf(filename);
-    // string magicNumber;
-    // size_t cols;
-    // size_t rows;
-    // uint maxColorValue;
+    char c;
+    int ch;
 
-    // if(!inf.is_open())
-    //     cerr << "Unable to open file: " << filename << std::endl;
+    // width, height, and pixel depth of image
+    size_t cols, rows;
+    int depth;
+    cols = 0u;
+    rows = 0u;
+    depth = -1;
 
-    // inf >> magicNumber >> cols >> rows >> maxColorValue;
+    // adapted from https://github.com/eshyong/PPM-Viewer/blob/master/ppm.cpp
+    // and simplified
+    
+    // magic number P6
+    c = char(getc(stream));
+    if (c != 'P')
+        cerr << "file is not in ppm format.\n";
 
-    // if (magicNumber != "P6")
-    //     cerr << "Invalid PPM file format." << endl;
+    c = char(getc(stream));
+    if (c != '6')
+        cerr << "Wrong ppm format.\n";
 
-    // if (maxColorValue != 255u)
-    //     cerr << "I have no idea what to do." << endl;
+    // num buffer for numbers in ASCII form
+    char num[16];
+    int val;
+    int index = 0;
 
-    // fullRows = std::ceil(rows / 8.0f) * 8u;
-    // fullCols = std::ceil(cols / 8.0f) * 8u;
+    // find width, height, and max color value
+    do
+    {
+        c = char(getc(stream));
+        switch (c) {
+            case '#':
+                // found a comment, ignore and skip to next line
+                while ((char)getc(stream) != '\n');
+                break;
+            case '\n':
+            case ' ':
+                // no numbers found
+                if (index == 0) break;
 
-    // Yp = Matrix<float>(fullRows, fullCols);
-    // Cb = Matrix<float>(fullRows, fullCols);
-    // Cr = Matrix<float>(fullRows, fullCols);
+                // end of a number
+                val = atoi(num);
+                if (val != 0) {
+                    // set any unset fields
+                    if (cols == 0u) 
+                        cols = val;
+                    else if (rows == 0u) 
+                        rows = val;
+                    else 
+                        depth = val;
+                    // reset num
+                    memset(num, 0, sizeof(num));
+                    index = 0;
+                }
+                break;
+            default:
+                // add digit to number
+                if (isdigit(c)) {
+                    num[index] = c;
+                    index++;
+                }
+                break;
+        }
+    }
+    while ((cols == 0u || rows == 0u || depth == -1) && !feof(stream));
 
-    // // todo: use SIMD for this
-    // for (size_t r = 0; r < rows; ++r)
-    // {
-    //     for (size_t c = 0; c < cols; ++c)
-    //     {
-    //         uint8_t rd;
-    //         uint8_t gr;
-    //         uint8_t bl;
+    int r, g, b;
+    r = -1;
+    g = -1;
+    b = -1;
+    // index for width and height
+    size_t i = 0, j = 0;
 
-    //         inf >> skipws >> rd;
-    //         inf >> skipws >> gr;
-    //         inf >> skipws >> bl;
-
-    //         float y = 0.299f * rd + 0.587f * gr + 0.114f * bl - 128;
-    //         float cb = -0.1687f * rd - 0.33126f * gr + 0.5f * bl;
-    //         float cr = 0.5f * rd - 0.41869f * gr - 0.0813f * bl;
-
-    //         Yp(r, c) = y;
-    //         Cb(r, c) = cb;
-    //         Cr(r, c) = cr;
-    //     }
-    // }
-
-    // // padding (vertically)
-    // for (size_t r = rows; r < fullRows; ++r)
-    // {
-    //     for (size_t c = 0; c < cols; ++c)
-    //     {
-    //         Yp(r, c) = Yp(rows - 1u, c);
-    //         Cr(r, c) = Cr(rows - 1u, c);
-    //         Cb(r, c) = Cb(rows - 1u, c);
-    //     }
-    // }
-
-    // // padding (horizontally)
-    // for (size_t c = cols; c < fullCols; ++c)
-    // {
-    //     for (size_t r = 0; r < fullRows; ++r)
-    //     {
-    //         Yp(r, c) = Yp(r, cols - 1u);
-    //         Cr(r, c) = Cr(r, cols - 1u);
-    //         Cb(r, c) = Cb(r, cols - 1u);
-    //     }
-    // }
-
-    Magick::Image img(filename);
-    img.depth(8);
-    auto pack = img.getPixels(0, 0, img.columns(), img.rows());
-
-    fullRows = std::ceil(img.rows() / 8.0f) * 8u;
-    fullCols = std::ceil(img.columns() / 8.0f) * 8u;
+    fullRows = std::ceil(rows / 8.0f) * 8u;
+    fullCols = std::ceil(cols / 8.0f) * 8u;
 
     Yp = Matrix<float>(fullRows, fullCols);
     Cb = Matrix<float>(fullRows, fullCols);
     Cr = Matrix<float>(fullRows, fullCols);
 
-    for (size_t r = 0; r < img.rows(); ++r)
+    do
     {
-        for (size_t c = 0; c < img.columns(); ++c)
-        {
-            auto x = pack[(r) * img.columns() + c];
-            uint8_t rd = uint8_t(x.red);
-            uint8_t gr = uint8_t(x.green);
-            uint8_t bl = uint8_t(x.blue);
-            float y = 0.299f * rd + 0.587f * gr + 0.114f * bl - 128;
-            float cb = -0.1687f * rd - 0.33126f * gr + 0.5f * bl;
-            float cr = 0.5f * rd - 0.41869f * gr - 0.0813f * bl;
+        ch = getc(stream);
+        
+        if (r == -1) 
+            r = ch;
+        else if (g == -1)
+            g = ch;
+        else if (b == -1) {
+            // all values are now found
+            // alpha is always 255 since ppms only encode RGB
+            b = ch;
+            
+            float y = 0.299f * r + 0.587f * g + 0.114f * b - 128;
+            float cb = -0.1687f * r - 0.33126f * g + 0.5f * b;
+            float cr = 0.5f * r - 0.41869f * g - 0.0813f * b;
 
-            Yp(r, c) = y;
-            Cb(r, c) = cb;
-            Cr(r, c) = cr;
+            Yp(j, i) = y;
+            Cb(j, i) = cb;
+            Cr(j, i) = cr;
+
+            if (i < (cols - 1)) {
+                i++;
+            } else {
+                j++;
+                i = 0;
+            }
+            r = -1;
+            g = -1;
+            b = -1;
         }
     }
+    while (j < rows);
 
     // padding (vertically)
-    for (size_t r = img.rows(); r < fullRows; ++r)
+    for (size_t r = rows; r < fullRows; ++r)
     {
-        for (size_t c = 0; c < img.columns(); ++c)
+        for (size_t c = 0; c < cols; ++c)
         {
-            Yp(r, c) = Yp(img.rows() - 1u, c);
-            Cr(r, c) = Cr(img.rows() - 1u, c);
-            Cb(r, c) = Cb(img.rows() - 1u, c);
+            Yp(r, c) = Yp(rows - 1u, c);
+            Cr(r, c) = Cr(rows - 1u, c);
+            Cb(r, c) = Cb(rows - 1u, c);
         }
     }
 
     // padding (horizontally)
-    for (size_t c = img.columns(); c < fullCols; ++c)
+    for (size_t c = cols; c < fullCols; ++c)
     {
         for (size_t r = 0; r < fullRows; ++r)
         {
-            Yp(r, c) = Yp(r, img.columns() - 1u);
-            Cr(r, c) = Cr(r, img.columns() - 1u);
-            Cb(r, c) = Cb(r, img.columns() - 1u);
+            Yp(r, c) = Yp(r, cols - 1u);
+            Cr(r, c) = Cr(r, cols - 1u);
+            Cb(r, c) = Cb(r, cols - 1u);
         }
     }
 }

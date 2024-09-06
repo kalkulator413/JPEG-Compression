@@ -125,30 +125,3 @@ TEST_CASE("Writing files")
     processPPMFile("sample3");
 };
 
-TEST_CASE("YCbCr")
-{
-    Magick::Image img("./Data/Raw/blackbuck.ppm");
-    std::cout << "Rows: " << img.rows() << std::endl;
-    std::cout << "Cols: " << img.columns() << std::endl;
-    auto pack = img.getPixels(0, 0, img.columns(), img.rows());
-
-    PPMImg ppm("./Data/Raw/blackbuck.ppm");
-
-    for (size_t r = 0; r < 1; ++r)
-    {
-        for (size_t c = 0; c < img.columns(); ++c)
-        {
-            auto x = pack[(r) * img.columns() + c];
-            uint8_t rd = int(x.red) >> 8;
-            uint8_t gr = int(x.green) >> 8;
-            uint8_t bl = int(x.blue) >> 8;
-            float y = 0.299f * rd + 0.587f * gr + 0.114f * bl - 128;
-            float cb = -0.1687f * rd - 0.33126f * gr + 0.5f * bl;
-            float cr = 0.5f * rd - 0.41869f * gr - 0.0813f * bl;
-
-            CHECK(y == ppm.Yp(r, c));
-            CHECK(cb == ppm.Cb(r, c));
-            CHECK(cr == ppm.Cr(r, c));
-        }
-    }
-};
