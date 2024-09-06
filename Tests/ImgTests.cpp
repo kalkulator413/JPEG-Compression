@@ -107,7 +107,7 @@ static void processPPMFile(std::string str)
     PPMImg ppm(oldName.c_str());
     BlockedImage b(ppm);
     b.applyDCT();
-    b.quantize(100);
+    b.quantize(QUALITY);
     std::string newName = "./Data/Processed/" + str + ".jpg";
     std::cout << "created " << newName << std::endl;
     b.encode(QUALITY, newName.c_str());

@@ -1,3 +1,3 @@
-add_executable(App Main.cpp)
+add_executable(compress Main.cpp)
  
-target_link_libraries(App Lib)
+target_link_libraries(compress Lib)

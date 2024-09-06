@@ -1,4 +1,14 @@
-WIP
+PPM to JPEG conversion supported. Further optimizations WIP.
+
+Build using `./build.sh`
+
+Usage
+
+```
+./compress example.ppm example.jpg [quality]
+```
+
+`quality` should be a number between 1 and 100. If not specified, it defaults to 100.
 
 Roadmap:
 - [x] Set up project structure and cmake
