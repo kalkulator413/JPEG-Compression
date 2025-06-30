@@ -11,4 +11,4 @@ target_link_libraries(Tests PRIVATE Lib Catch2::Catch2WithMain)
 
 include(CTest)
 include(Catch)
-catch_discover_tests(Tests)
+catch_discover_tests(Tests WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

@@ -45,6 +45,7 @@ git clone https://github.com/kalkulator413/JPEG-Compression.git
 
 ### Backlog
 - [ ] Much needed performance improvements
+  - Profile slowest methods
 - [ ] Create releases on Github
 - [ ] Add performance comparison benchmarks here
 

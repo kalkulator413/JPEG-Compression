@@ -17,8 +17,8 @@ int main(int argc, char** argv) {
     BlockedImage b(ppm);
     b.applyDCT();
     b.quantize(QUALITY);
-    std::cout << "created " << argv[2] << std::endl;
     b.encode(QUALITY, argv[2]);
 
+    std::cout << "created " << argv[2] << std::endl;
     return 0;
 }
