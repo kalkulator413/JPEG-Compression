@@ -1,4 +1,4 @@
-# PPM To JPEG Compressor
+# PPM To JPEG Convertor
 
 ## Installation Instructions
 
